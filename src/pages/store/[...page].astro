@@ -4,9 +4,22 @@ import HorizontalShopItem from "../../components/HorizontalShopItem.astro";
 import { getCollection } from "astro:content";
 
 export async function getStaticPaths({ paginate }) {
-  const items = await getCollection("store");
-  items.sort((a, b) => b.data.updatedDate.valueOf() - a.data.updatedDate.valueOf());
-  return paginate(items, { pageSize: 10 });
+  // Return a single empty page to make the store items 0
+  return [{
+      params: { page: undefined },
+      props: {
+          page: {
+              data: [],
+              start: 0,
+              end: 0,
+              total: 0,
+              currentPage: 1,
+              size: 10,
+              lastPage: 1,
+              url: { current: "/store", prev: undefined, next: undefined }
+          }
+      }
+  }];
 }
 const { page } = Astro.props;
 ---
@@ -35,6 +48,14 @@ const { page } = Astro.props;
       ))
     }
   </ul>
+
+  {
+      page.data.length === 0 && (
+          <div class="text-center py-10">
+              <p class="text-xl">No items found.</p>
+          </div>
+      )
+  }
 
   <div class="flex justify-between">
     {
